@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f4f4f4; padding: 30px 16px; color: #1a1a1a; }
+  .wrapper { max-width: 760px; margin: 0 auto; }
+  .header { background: #1a1a1a; color: white; padding: 36px 40px; }
+  .header .logo { font-size: 26px; letter-spacing: 4px; font-weight: 700; text-transform: lowercase; }
+  .header .tagline { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: #aaa; margin-top: 4px; }
+  .header h2 { font-size: 16px; font-weight: 400; margin-top: 18px; color: #e0e0e0; letter-spacing: 1px; }
+  .progress-bar-wrap { background: #333; height: 4px; }
+  .progress-bar { height: 4px; background: #fff; transition: width 0.4s ease; width: 0%; }
+  .section { background: white; padding: 32px 40px; border-bottom: 1px solid #eee; display: none; }
+  .section.active { display: block; }
+  .section-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: #999; margin-bottom: 6px; }
+  .section-title { font-size: 18px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
+  .section-desc { font-size: 13px; color: #666; margin-bottom: 28px; line-height: 1.6; }
+  .field { margin-bottom: 22px; }
+  label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; color: #444; margin-bottom: 7px; text-transform: uppercase; }
+  label span.req { color: #e53e3e; }
+  label span.opt { color: #aaa; font-weight: 400; font-size: 11px; text-transform: none; letter-spacing: 0; margin-left: 4px; }
+  input[type="text"], input[type="email"], input[type="tel"], input[type="password"], textarea, select {
+    width: 100%; border: 1.5px solid #ddd; padding: 11px 14px; font-size: 14px; color: #1a1a1a;
+    border-radius: 4px; outline: none; transition: border 0.2s; background: #fafafa; font-family: inherit;
+  }
+  input:focus, textarea:focus, select:focus { border-color: #1a1a1a; background: white; }
+  textarea { resize: vertical; min-height: 90px; }
+  .hint { font-size: 11px; color: #999; margin-top: 5px; line-height: 1.5; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .toggle-pass { position: relative; }
+  .toggle-pass input { padding-right: 44px; }
+  .toggle-pass button { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #888; font-size: 13px; }
+  .checkbox-group { display: flex; flex-direction: column; gap: 10px; }
+  .checkbox-item { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #333; cursor: pointer; }
+  .checkbox-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: #1a1a1a; cursor: pointer; }
+  .nav { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: white; border-top: 1px solid #eee; }
+  .step-count { font-size: 12px; color: #999; letter-spacing: 1px; }
+  .btn { padding: 11px 28px; font-size: 13px; font-weight: 600; letter-spacing: 1px; cursor: pointer; border: none; border-radius: 3px; text-transform: uppercase; transition: background 0.2s; }
+  .btn-next { background: #1a1a1a; color: white; }
+  .btn-next:hover { background: #333; }
+  .btn-back { background: white; color: #1a1a1a; border: 1.5px solid #ccc; }
+  .btn-back:hover { border-color: #1a1a1a; }
+  .btn-submit { background: #1a1a1a; color: white; }
+  .alert-box { background: #fff8e1; border-left: 4px solid #f59e0b; padding: 12px 16px; font-size: 13px; color: #7c4a00; margin-bottom: 22px; border-radius: 2px; line-height: 1.6; }
+  .status-msg { display:none; padding: 12px 16px; border-radius: 4px; font-size: 13px; margin-bottom: 16px; }
+  .status-msg.sending { display:block; background: #e8f4fd; color: #1a6fa8; border-left: 4px solid #3b9de8; }
+  .status-msg.error { display:block; background: #fdecea; color: #a00; border-left: 4px solid #e53e3e; }
+  .success { display: none; text-align: center; background: white; padding: 60px 40px; }
+  .success.show { display: block; }
+  .success .checkmark { font-size: 48px; margin-bottom: 16px; }
+  .success h2 { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+  .success p { font-size: 14px; color: #555; line-height: 1.7; }
+  .success .print-btn { margin-top: 28px; padding: 11px 28px; background: #1a1a1a; color: white; border: none; font-size: 13px; letter-spacing: 1px; cursor: pointer; text-transform: uppercase; }
+  @media (max-width: 560px) {
+    .section, .nav { padding-left: 20px; padding-right: 20px; }
+    .header { padding: 24px 20px; }
+    .two-col { grid-template-columns: 1fr; }
+  }
+  @media print {
+    body { background: white; padding: 0; }
+    .nav, .progress-bar-wrap { display: none; }
+    .section { display: block !important; border-bottom: 1px solid #eee; }
+    .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <div class="header">
+    <div class="logo">growvia</div>
+    <div class="tagline">Digital Marketing Agency</div>
+    <h2>Client Onboarding Questionnaire</h2>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+  <!-- SECTION 1 -->
+  <div class="section active" id="sec1">
+    <div class="section-label">Section 1 of 5</div>
+    <div class="section-title">Business Information</div>
+    <div class="section-desc">Tell us about your business so we can understand your brand better.</div>
+    <div class="field">
+      <label>Business Name <span class="req">*</span></label>
+      <input type="text" id="f_bizName" placeholder="e.g. Sunrise Clothing Co.">
+    </div>
+    <div class="two-col">
+      <div class="field">
+        <label>Owner / Contact Name <span class="req">*</span></label>
+        <input type="text" id="f_ownerName" placeholder="Full name">
+      </div>
+      <div class="field">
+        <label>Phone Number <span class="req">*</span></label>
+        <input type="tel" id="f_phone" placeholder="+91 XXXXX XXXXX">
+      </div>
+    </div>
+    <div class="field">
+      <label>Email Address <span class="req">*</span></label>
+      <input type="email" id="f_email" placeholder="business@email.com">
+    </div>
+    <div class="two-col">
+      <div class="field">
+        <label>Business Location <span class="req">*</span></label>
+        <input type="text" id="f_location" placeholder="City, State">
+      </div>
+      <div class="field">
+        <label>Business Type <span class="req">*</span></label>
+        <select id="f_bizType">
+          <option value="">Select type</option>
+          <option>Food & Beverage</option>
+          <option>Retail / Fashion</option>
+          <option>Beauty / Wellness</option>
+          <option>Real Estate</option>
+          <option>Hospitality / Hotel</option>
+          <option>Education</option>
+          <option>Healthcare</option>
+          <option>E-commerce</option>
+          <option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>What makes your business unique? <span class="opt">(optional)</span></label>
+      <textarea id="f_usp" placeholder="Your USP, specialty, or anything you'd like us to know..."></textarea>
+    </div>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="section" id="sec2">
+    <div class="section-label">Section 2 of 5</div>
+    <div class="section-title">Instagram Account Access</div>
+    <div class="section-desc">We need access to manage your Instagram profile. Please ensure your account is a <strong>Professional (Business)</strong> account before sharing credentials.</div>
+    <div class="alert-box">🔒 Your credentials are kept strictly confidential and used only for account management. We recommend changing your password after the contract ends.</div>
+    <div class="field">
+      <label>Instagram Username / Handle <span class="req">*</span></label>
+      <input type="text" id="f_igHandle" placeholder="@yourbusiness">
+    </div>
+    <div class="two-col">
+      <div class="field">
+        <label>Registered Email / Phone <span class="req">*</span></label>
+        <input type="text" id="f_igEmail" placeholder="Email or phone linked to account">
+      </div>
+      <div class="field">
+        <label>Instagram Password <span class="req">*</span></label>
+        <div class="toggle-pass">
+          <input type="password" id="igPass" placeholder="••••••••">
+          <button type="button" onclick="togglePass('igPass',this)">Show</button>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Two-Factor Authentication (2FA) <span class="req">*</span></label>
+      <select id="f_2fa">
+        <option value="">Select</option>
+        <option>Enabled – I will provide backup codes</option>
+        <option>Enabled – OTP via phone (I'll share codes in real time)</option>
+        <option>Disabled</option>
+      </select>
+      <div class="hint">If 2FA is enabled, please share the 6-digit OTP during first login or provide backup codes.</div>
+    </div>
+    <div class="field">
+      <label>Backup / Recovery Email <span class="opt">(optional)</span></label>
+      <input type="email" id="f_igBackup" placeholder="Backup email linked to Instagram">
+    </div>
+    <div class="field">
+      <label>Current Follower Count <span class="opt">(optional)</span></label>
+      <input type="text" id="f_followers" placeholder="e.g. 1,200">
+    </div>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="section" id="sec3">
+    <div class="section-label">Section 3 of 5</div>
+    <div class="section-title">Meta Business & Ads Access</div>
+    <div class="section-desc">For running Meta Ads, we need access to your Meta Business Suite and Ad Account.</div>
+    <div class="alert-box">💡 Preferred method: Add <strong>your Growvia agency email</strong> as an Admin in Meta Business Suite → Settings → People. This is safer than sharing passwords.</div>
+    <div class="field">
+      <label>Meta Business Suite URL or Business ID <span class="opt">(optional)</span></label>
+      <input type="text" id="f_metaBizId" placeholder="business.facebook.com/yourbusiness or Business ID number">
+    </div>
+    <div class="field">
+      <label>Facebook Page Name (linked to Instagram) <span class="req">*</span></label>
+      <input type="text" id="f_fbPage" placeholder="Your Facebook Page name">
+    </div>
+    <div class="field">
+      <label>Ad Account ID <span class="opt">(optional)</span></label>
+      <input type="text" id="f_adAccountId" placeholder="e.g. act_XXXXXXXXXX">
+      <div class="hint">Go to Ads Manager → top-left dropdown → your account ID is listed there.</div>
+    </div>
+    <div class="field">
+      <label>Meta Login Email <span class="opt">(optional)</span></label>
+      <input type="email" id="f_metaEmail" placeholder="Email used to log in to Meta / Facebook">
+    </div>
+    <div class="field">
+      <label>Meta Login Password <span class="opt">(optional)</span></label>
+      <div class="toggle-pass">
+        <input type="password" id="metaPass" placeholder="••••••••">
+        <button type="button" onclick="togglePass('metaPass',this)">Show</button>
+      </div>
+      <div class="hint">Only required if you are unable to add us as an admin directly.</div>
+    </div>
+    <div class="field">
+      <label>Payment Method Added to Meta Ads? <span class="req">*</span></label>
+      <select id="f_payment">
+        <option value="">Select</option>
+        <option>Yes – Card/UPI already added</option>
+        <option>No – I need help setting it up</option>
+        <option>I'll add the budget when needed</option>
+      </select>
+      <div class="hint">As per agreement, Ad Spend is borne by the client directly.</div>
+    </div>
+    <div class="field">
+      <label>Monthly Ad Budget (INR) <span class="opt">(optional)</span></label>
+      <input type="text" id="f_adBudget" placeholder="e.g. ₹5,000 / ₹10,000 / ₹20,000">
+    </div>
+  </div>
+
+  <!-- SECTION 4 -->
+  <div class="section" id="sec4">
+    <div class="section-label">Section 4 of 5</div>
+    <div class="section-title">Brand Identity & Content Preferences</div>
+    <div class="section-desc">Help us understand your brand voice and visual identity so content feels authentically yours.</div>
+    <div class="field">
+      <label>Brand Colors <span class="opt">(optional)</span></label>
+      <input type="text" id="f_colors" placeholder="e.g. Gold, Black, Cream — or paste hex codes">
+    </div>
+    <div class="field">
+      <label>Brand Fonts / Style <span class="opt">(optional)</span></label>
+      <input type="text" id="f_fonts" placeholder="e.g. Elegant serif, modern minimal, bold & vibrant">
+    </div>
+    <div class="field">
+      <label>Target Audience <span class="req">*</span></label>
+      <input type="text" id="f_audience" placeholder="e.g. Young adults aged 20–35, working professionals, parents">
+    </div>
+    <div class="field">
+      <label>Content Tone / Voice <span class="req">*</span></label>
+      <select id="f_tone">
+        <option value="">Select</option>
+        <option>Luxurious & Premium</option>
+        <option>Warm & Welcoming</option>
+        <option>Fun & Trendy</option>
+        <option>Informative & Professional</option>
+        <option>Inspirational & Motivational</option>
+        <option>Mix of the above</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Competitors or Inspiration Accounts <span class="opt">(optional)</span></label>
+      <textarea id="f_competitors" placeholder="List Instagram handles of competitors or pages you admire..."></textarea>
+    </div>
+    <div class="field">
+      <label>Do you have existing brand assets? <span class="opt">(optional)</span></label>
+      <div class="checkbox-group">
+        <label class="checkbox-item"><input type="checkbox" id="cb_logo"> Logo (PNG/SVG)</label>
+        <label class="checkbox-item"><input type="checkbox" id="cb_brand"> Brand Guidelines / Kit</label>
+        <label class="checkbox-item"><input type="checkbox" id="cb_media"> Existing photos / videos</label>
+        <label class="checkbox-item"><input type="checkbox" id="cb_catalogue"> Product / Service catalogue</label>
+        <label class="checkbox-item"><input type="checkbox" id="cb_none"> None – start from scratch</label>
+      </div>
+    </div>
+    <div class="field">
+      <label>Preferred Posting Frequency <span class="req">*</span></label>
+      <select id="f_postFreq">
+        <option value="">Select</option>
+        <option>Daily</option>
+        <option>4–5 times/week</option>
+        <option>3 times/week</option>
+        <option>As needed / Event-based</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- SECTION 5 -->
+  <div class="section" id="sec5">
+    <div class="section-label">Section 5 of 5</div>
+    <div class="section-title">Goals & Additional Notes</div>
+    <div class="section-desc">Almost done! Help us align on what success looks like for you.</div>
+    <div class="field">
+      <label>Primary Goal for This Campaign <span class="req">*</span></label>
+      <div class="checkbox-group">
+        <label class="checkbox-item"><input type="checkbox" id="goal1"> Grow Instagram followers</label>
+        <label class="checkbox-item"><input type="checkbox" id="goal2"> Increase footfall / walk-ins</label>
+        <label class="checkbox-item"><input type="checkbox" id="goal3"> Drive online orders / inquiries</label>
+        <label class="checkbox-item"><input type="checkbox" id="goal4"> Boost brand awareness</label>
+        <label class="checkbox-item"><input type="checkbox" id="goal5"> Promote specific offers / events</label>
+      </div>
+    </div>
+    <div class="field">
+      <label>Any Upcoming Events or Promotions? <span class="opt">(optional)</span></label>
+      <textarea id="f_events" placeholder="e.g. New product launch, anniversary offer, seasonal campaign..."></textarea>
+    </div>
+    <div class="field">
+      <label>Things to Avoid in Content <span class="opt">(optional)</span></label>
+      <textarea id="f_avoid" placeholder="e.g. No competitor mentions, avoid certain colors, no political content..."></textarea>
+    </div>
+    <div class="field">
+      <label>Preferred Communication Channel <span class="req">*</span></label>
+      <select id="f_comm">
+        <option value="">Select</option>
+        <option>WhatsApp</option>
+        <option>Email</option>
+        <option>Phone Call</option>
+        <option>In-person meetings</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Content Approval Process <span class="req">*</span></label>
+      <select id="f_approval">
+        <option value="">Select</option>
+        <option>Approve every post before publishing</option>
+        <option>Weekly batch approval</option>
+        <option>Trust the agency – post directly</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Anything else we should know? <span class="opt">(optional)</span></label>
+      <textarea id="f_notes" placeholder="Any special instructions, concerns, or expectations..."></textarea>
+    </div>
+    <div class="status-msg" id="statusMsg"></div>
+  </div>
+
+  <!-- Success -->
+  <div class="success" id="successMsg">
+    <div class="checkmark">✅</div>
+    <h2>Onboarding Complete!</h2>
+    <p>Thank you for filling out the questionnaire.<br>The Growvia team will reach out within <strong>24 hours</strong> to confirm access and kick off your campaign.</p>
+    <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+  </div>
+
+  <!-- Nav -->
+  <div class="nav" id="navBar">
+    <span class="step-count" id="stepCount">Step 1 of 5</span>
+    <div style="display:flex;gap:12px;">
+      <button class="btn btn-back" id="backBtn" onclick="changeSection(-1)" style="display:none">← Back</button>
+      <button class="btn btn-next" id="nextBtn" onclick="changeSection(1)">Next →</button>
+    </div>
+  </div>
+
+</div>
+<script>
+  let current = 1;
+  const total = 5;
+
+  // ⬇️ REPLACE THIS with your Google Apps Script Web App URL
+  const SHEET_URL = "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE";
+
+  function getCheckboxValues(ids) {
+    return ids.filter(id => document.getElementById(id)?.checked)
+              .map(id => document.getElementById(id).parentElement.textContent.trim())
+              .join(', ');
+  }
+
+  async function submitToSheet() {
+    const statusEl = document.getElementById('statusMsg');
+    statusEl.className = 'status-msg sending';
+    statusEl.textContent = '⏳ Submitting your responses...';
+
+    const assets = getCheckboxValues(['cb_logo','cb_brand','cb_media','cb_catalogue','cb_none']);
+    const goals  = getCheckboxValues(['goal1','goal2','goal3','goal4','goal5']);
+
+    const data = {
+      Timestamp:       new Date().toLocaleString(),
+      BusinessName:    document.getElementById('f_bizName').value,
+      OwnerName:       document.getElementById('f_ownerName').value,
+      Phone:           document.getElementById('f_phone').value,
+      Email:           document.getElementById('f_email').value,
+      Location:        document.getElementById('f_location').value,
+      BusinessType:    document.getElementById('f_bizType').value,
+      USP:             document.getElementById('f_usp').value,
+      IGHandle:        document.getElementById('f_igHandle').value,
+      IGEmail:         document.getElementById('f_igEmail').value,
+      IGPassword:      document.getElementById('igPass').value,
+      TwoFA:           document.getElementById('f_2fa').value,
+      IGBackupEmail:   document.getElementById('f_igBackup').value,
+      Followers:       document.getElementById('f_followers').value,
+      MetaBizID:       document.getElementById('f_metaBizId').value,
+      FacebookPage:    document.getElementById('f_fbPage').value,
+      AdAccountID:     document.getElementById('f_adAccountId').value,
+      MetaEmail:       document.getElementById('f_metaEmail').value,
+      MetaPassword:    document.getElementById('metaPass').value,
+      PaymentStatus:   document.getElementById('f_payment').value,
+      AdBudget:        document.getElementById('f_adBudget').value,
+      BrandColors:     document.getElementById('f_colors').value,
+      BrandFonts:      document.getElementById('f_fonts').value,
+      TargetAudience:  document.getElementById('f_audience').value,
+      ContentTone:     document.getElementById('f_tone').value,
+      Competitors:     document.getElementById('f_competitors').value,
+      BrandAssets:     assets,
+      PostingFreq:     document.getElementById('f_postFreq').value,
+      Goals:           goals,
+      UpcomingEvents:  document.getElementById('f_events').value,
+      AvoidContent:    document.getElementById('f_avoid').value,
+      CommChannel:     document.getElementById('f_comm').value,
+      ApprovalProcess: document.getElementById('f_approval').value,
+      Notes:           document.getElementById('f_notes').value,
+    };
+
+    if (SHEET_URL === "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE") {
+      // Demo mode — no real URL set yet
+      console.log("Form data (demo):", data);
+      setTimeout(() => showSuccess(), 800);
+      return;
+    }
+
+    try {
+      await fetch(SHEET_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      showSuccess();
+    } catch (err) {
+      statusEl.className = 'status-msg error';
+      statusEl.textContent = '❌ Submission failed. Please try again or contact Growvia directly.';
+    }
+  }
+
+  function showSuccess() {
+    document.getElementById('navBar').style.display = 'none';
+    document.getElementById('sec5').classList.remove('active');
+    document.getElementById('successMsg').classList.add('show');
+    document.getElementById('progressBar').style.width = '100%';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function changeSection(dir) {
+    if (dir === 1 && current === total) { submitToSheet(); return; }
+    document.getElementById('sec' + current).classList.remove('active');
+    current += dir;
+    document.getElementById('sec' + current).classList.add('active');
+    document.getElementById('stepCount').textContent = 'Step ' + current + ' of ' + total;
+    document.getElementById('progressBar').style.width = ((current - 1) / total * 100) + '%';
+    document.getElementById('backBtn').style.display = current > 1 ? 'inline-block' : 'none';
+    document.getElementById('nextBtn').textContent = current === total ? 'Submit ✓' : 'Next →';
+    document.getElementById('nextBtn').className = 'btn ' + (current === total ? 'btn-submit' : 'btn-next');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

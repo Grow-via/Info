@@ -439,5 +439,55 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 </script>
+<!-- ===== CONTACT FORM ===== -->
+<form id="contactForm" style="max-width:500px; margin:auto;">
+
+  <input type="text" id="name" placeholder="Your Name"
+    style="width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:5px;" />
+
+  <input type="email" id="email" placeholder="Your Email"
+    style="width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:5px;" />
+
+  <textarea id="message" placeholder="Your Message" rows="4"
+    style="width:100%; padding:10px; margin:8px 0; border:1px solid #ccc; border-radius:5px;"></textarea>
+
+  <button type="submit"
+    style="width:100%; padding:12px; background:#4CAF50; color:white; border:none; border-radius:5px; font-size:16px; cursor:pointer;">
+    Send Message
+  </button>
+
+  <p id="formStatus" style="text-align:center; margin-top:10px;"></p>
+
+</form>
+
+<script>
+  // 👇 PASTE YOUR APPS SCRIPT URL HERE
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyoM9G-dnzszJn-viyi7rM2mqGoxuJFpbNVf2bUqJbpQaP-HKMiWppe5KKBwn4kD3KU/exec";
+
+  document.getElementById("contactForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    document.getElementById("formStatus").innerText = "Sending...";
+
+    const payload = {
+      name:    document.getElementById("name").value,
+      email:   document.getElementById("email").value,
+      message: document.getElementById("message").value
+    };
+
+    fetch(SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify(payload)
+    })
+    .then(res => res.text())
+    .then(() => {
+      document.getElementById("formStatus").innerText = "✅ Message sent!";
+      document.getElementById("contactForm").reset();
+    })
+    .catch(() => {
+      document.getElementById("formStatus").innerText = "❌ Error. Try again.";
+    });
+  });
+</script>
 </body>
 </html>
